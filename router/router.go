@@ -39,10 +39,10 @@ func InitRouter() *mux.Router {
 	rv1.Use(m.CORS)
 
 	// Get DB Conn
-	dbConn := config.GetSQLite3Conn()
+	dbConn := config.GetPostgresDB()
 
 	// Todos
-	todoRepo := _todosRepo.NewTodosRepositorySqlite3(dbConn)
+	todoRepo := _todosRepo.NewTodosRepositoryPostgres(dbConn)
 	todoUcase := _todosUcase.NewTodosUsecase(todoRepo)
 	hTodos.NewTodosHttpHandler(rv1, todoUcase)
 
