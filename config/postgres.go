@@ -37,10 +37,12 @@ func createConnectionPostgres(dsn string) *sql.DB {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(1)
 	}
 	err = db.Ping()
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(1)
 	}
 
 	db.SetMaxIdleConns(10)
@@ -50,6 +52,7 @@ func createConnectionPostgres(dsn string) *sql.DB {
 
 	if err != nil {
 		log.Fatal(err)
+		os.Exit(1)
 	}
 
 	return db
