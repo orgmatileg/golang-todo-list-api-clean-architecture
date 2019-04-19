@@ -10,17 +10,14 @@ import (
 	"github.com/orgmatileg/golang-todo-list-api-clean-architecture/module/todos/model"
 )
 
-// postgresTodosRepository struct
 type postgresTodosRepository struct {
 	db *sql.DB
 }
 
-// NewTodosRepositoryPostgres func
 func NewTodosRepositoryPostgres(db *sql.DB) todos.Repository {
 	return &postgresTodosRepository{db}
 }
 
-// Save Todo
 func (r *postgresTodosRepository) Save(mt *model.Todo) error {
 
 	query := `
@@ -51,7 +48,6 @@ func (r *postgresTodosRepository) Save(mt *model.Todo) error {
 	return nil
 }
 
-// FindByID Todo
 func (r *postgresTodosRepository) FindByID(id string) (*model.Todo, error) {
 
 	query := `
@@ -78,7 +74,6 @@ func (r *postgresTodosRepository) FindByID(id string) (*model.Todo, error) {
 	return &mt, nil
 }
 
-// FindAll Example
 func (r *postgresTodosRepository) FindAll(limit, offset, order string) (mtl model.Todos, err error) {
 
 	query := fmt.Sprintf(`
@@ -110,7 +105,6 @@ func (r *postgresTodosRepository) FindAll(limit, offset, order string) (mtl mode
 	return mtl, nil
 }
 
-// Update Todos
 func (r *postgresTodosRepository) Update(id string, mt *model.Todo) (rowAffected *string, err error) {
 
 	query := `
@@ -149,7 +143,6 @@ func (r *postgresTodosRepository) Update(id string, mt *model.Todo) (rowAffected
 
 }
 
-// Delete Todos
 func (r *postgresTodosRepository) Delete(id string) error {
 
 	query := `
@@ -173,7 +166,6 @@ func (r *postgresTodosRepository) Delete(id string) error {
 	return nil
 }
 
-// IsExistsByID Todos
 func (r *postgresTodosRepository) IsExistsByID(id string) (isExist bool, err error) {
 
 	query := "SELECT EXISTS(SELECT true FROM tbl_todos WHERE todo_id = $1)"
@@ -195,7 +187,6 @@ func (r *postgresTodosRepository) IsExistsByID(id string) (isExist bool, err err
 	return isExist, nil
 }
 
-// Count Todos
 func (r *postgresTodosRepository) Count() (count int64, err error) {
 
 	query := `

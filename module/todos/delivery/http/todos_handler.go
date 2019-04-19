@@ -24,15 +24,14 @@ func NewTodosHttpHandler(r *mux.Router, tu todos.Usecase) {
 	}
 
 	r.HandleFunc("/todos", handler.TodosSaveHttpHandler).Methods("POST")
+	r.HandleFunc("/todos", handler.TodosFindAllHttpHandler).Methods("GET")
 	r.HandleFunc("/todos/count", handler.TodosCountHttpHandler).Methods("GET")
 	r.HandleFunc("/todos/{id}", handler.TodosFindByIDHttpHandler).Methods("GET")
-	r.HandleFunc("/todos", handler.TodosFindAllHttpHandler).Methods("GET")
 	r.HandleFunc("/todos/{id}", handler.TodosUpdateHttpHandler).Methods("PUT")
 	r.HandleFunc("/todos/{id}", handler.TodosDeleteHttpHandler).Methods("DELETE")
 	r.HandleFunc("/todos/{id}/exists", handler.TodosExistsByIDHttpHandler).Methods("GET")
 }
 
-// TodosSaveHttpHandler handler
 func (u *HttpTodosHandler) TodosSaveHttpHandler(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
@@ -61,28 +60,6 @@ func (u *HttpTodosHandler) TodosSaveHttpHandler(w http.ResponseWriter, r *http.R
 
 }
 
-// TodosFindByIDHttpHandler handler
-func (u *HttpTodosHandler) TodosFindByIDHttpHandler(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	res := helper.Response{}
-
-	idP := vars["id"]
-
-	mt, err := u.TUsecase.FindByID(idP)
-
-	defer res.ServeJSON(w, r)
-
-	if err != nil {
-		res.Err = err
-		return
-	}
-
-	res.Body.Payload = mt
-
-}
-
-// TodosFindAllHttpHandler handler
 func (u *HttpTodosHandler) TodosFindAllHttpHandler(w http.ResponseWriter, r *http.Request) {
 
 	queryParam := r.URL.Query()
@@ -119,7 +96,26 @@ func (u *HttpTodosHandler) TodosFindAllHttpHandler(w http.ResponseWriter, r *htt
 
 }
 
-// TodosUpdateHttpHandler handler
+func (u *HttpTodosHandler) TodosFindByIDHttpHandler(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	res := helper.Response{}
+
+	idP := vars["id"]
+
+	mt, err := u.TUsecase.FindByID(idP)
+
+	defer res.ServeJSON(w, r)
+
+	if err != nil {
+		res.Err = err
+		return
+	}
+
+	res.Body.Payload = mt
+
+}
+
 func (u *HttpTodosHandler) TodosUpdateHttpHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -151,7 +147,6 @@ func (u *HttpTodosHandler) TodosUpdateHttpHandler(w http.ResponseWriter, r *http
 
 }
 
-// TodosDeleteHttpHandler handler
 func (u *HttpTodosHandler) TodosDeleteHttpHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -173,7 +168,6 @@ func (u *HttpTodosHandler) TodosDeleteHttpHandler(w http.ResponseWriter, r *http
 
 }
 
-// ExampleIsExistsByIDHttpHandler handler
 func (u *HttpTodosHandler) TodosExistsByIDHttpHandler(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -190,15 +184,16 @@ func (u *HttpTodosHandler) TodosExistsByIDHttpHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	if isExists {
-		res.Body.Payload = "Todo Row " + idP + " is Exists!"
-	} else {
-		res.Body.Payload = "Todo Row " + idP + " is Not Exists!"
+	payload := struct {
+		IsExists bool `json:"is_exists"`
+	}{
+		IsExists: isExists,
 	}
+
+	res.Body.Payload = payload
 
 }
 
-// TodosCountHttpHandler handler
 func (u *HttpTodosHandler) TodosCountHttpHandler(w http.ResponseWriter, r *http.Request) {
 
 	res := helper.Response{}
@@ -212,12 +207,12 @@ func (u *HttpTodosHandler) TodosCountHttpHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	total := struct {
+	payload := struct {
 		Count int64 `json:"count"`
 	}{
 		Count: count,
 	}
 
-	res.Body.Payload, res.Body.Count = total, count
+	res.Body.Payload = payload
 
 }

@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/orgmatileg/golang-todo-list-api-clean-architecture/module/todos"
 	"github.com/orgmatileg/golang-todo-list-api-clean-architecture/module/todos/model"
 )
@@ -16,6 +18,13 @@ func NewTodosUsecase(tr todos.Repository) todos.Usecase {
 }
 
 func (u *todosUsecase) Save(mt *model.Todo) (err error) {
+
+	// start check input
+	if mt.TodoName == "" {
+		return errors.New("Todo name cannot be empty")
+	}
+
+	// end check input
 
 	err = u.todosRepo.Save(mt)
 
@@ -52,19 +61,22 @@ func (u *todosUsecase) FindAll(limit, offset, order string) (mtl model.Todos, co
 
 func (u *todosUsecase) Update(id string, mt *model.Todo) (rowAffected *string, err error) {
 
+	// start check input
+	if mt.TodoName == "" {
+		return nil, errors.New("Todo name cannot be empty")
+	}
+	// end check input
+
+	// Get existing rows to compare value with input
 	v, err := u.todosRepo.FindByID(id)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if mt.TodoName != "" {
-		v.TodoName = mt.TodoName
-	}
-
-	if mt.IsDone != v.IsDone {
-		v.IsDone = mt.IsDone
-	}
+	// Replace todo_name and is_done value and keep the previous value
+	v.TodoName = mt.TodoName
+	v.IsDone = mt.IsDone
 
 	rowAffected, err = u.todosRepo.Update(id, v)
 
